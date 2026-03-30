@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Carta</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle, #0a0a0a 40%, #000 100%);
+    font-family: 'Georgia', serif;
+    color: #dcdcdc;
+}
+
+/* Oscurecer ambiente */
+.overlay {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 1;
+    transition: opacity 5s;
+}
+
+/* Lluvia */
+.rain {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+.drop {
+    position: absolute;
+    width: 1px;
+    height: 25px;
+    background: rgba(255,255,255,0.12);
+    transform: rotate(20deg);
+    animation: fall linear infinite;
+}
+
+@keyframes fall {
+    0% { transform: translateY(-100px) translateX(0) rotate(20deg); }
+    100% { transform: translateY(100vh) translateX(80px) rotate(20deg); }
+}
+
+/* Carta */
+.container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: opacity 3s;
+}
+
+.sobre {
+    width: 680px;
+    background: rgba(0,0,0,0.8);
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 0 60px rgba(0,0,0,0.9);
+    position: relative;
+}
+
+.sobre::before {
+    content: "";
+    position: absolute;
+    top: -45px;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    background: rgba(0,0,0,0.9);
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+
+h1 {
+    text-align: center;
+    color: #6f7a8c;
+    margin-bottom: 25px;
+}
+
+/* Texto */
+.fade-text span {
+    opacity: 0;
+    animation: appear 0.06s forwards;
+}
+
+@keyframes appear {
+    to { opacity: 1; }
+}
+
+/* Frase final */
+.final {
+    position: fixed;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    font-size: 26px;
+    color: #cfcfcf;
+    opacity: 0;
+    z-index: 5;
+    transition: opacity 4s;
+}
+
+/* Temblor */
+@keyframes shake {
+    0% { transform: translate(0px, 0px); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
+    100% { transform: translate(0px, 0px); }
+}
+.shake {
+    animation: shake 0.5s infinite;
+}
+</style>
+</head>
+
+<body>
+
+<div class="overlay" id="overlay"></div>
+<div class="rain" id="rain"></div>
+
+<!-- FRASE FINAL -->
+<div class="final" id="finalText">Perdón… por ser todo un desastre</div>
+
+<audio id="audio" loop preload="auto">
+    <source src="audio.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container" id="carta">
+    <div class="sobre">
+        <h1>Perdóname</h1>
+        <p class="fade-text" id="texto"></p>
+    </div>
+</div>
+
+<script>
+// Lluvia
+const rain = document.getElementById("rain");
+for (let i = 0; i < 300; i++) {
+    let drop = document.createElement("div");
+    drop.classList.add("drop");
+    drop.style.left = Math.random() * 100 + "vw";
+    drop.style.animationDuration = (Math.random() * 1 + 0.5) + "s";
+    drop.style.opacity = Math.random();
+    rain.appendChild(drop);
+}
+
+// Texto
+const text = "Antes de irme quiero pedirte perdón de verdad, sé que amarme no es fácil y que entenderme a veces es aún más difícil, perdón por todo lo que has tenido que soportar conmigo, perdóname por mis lágrimas constantes y por hacerte cargar con mis emociones, perdón por mi actitud que muchas veces te hizo sentir que no me importabas cuando en realidad eres lo más importante para mí, perdóname por no saber entenderte y por no comprender tus bromas, por exagerar todo, por sobrepensar y por desconfiar tanto, perdón por mi carácter, por ser inseguro, egoísta e inmaduro, por hacerte sentir que querías irte, por insistir tanto hasta cansarte y por no respetar tus decisiones, perdóname por las veces que te acusé injustamente y por tratarte mal, por decir cosas horribles que nunca debí decir, me duele reconocer todo el daño que te hice y más me duele saber que fue por lo complicado que soy, sé que no soy el hombre que mereces pero te amo como nunca he amado a nadie, daría todo incluso mi vida solo por verte feliz, sé que muchas veces prometo cambiar y fallo pero quiero seguir intentando porque tú vales cada esfuerzo, hemos tenido muchas discusiones y ahora estamos en un momento difícil pero quiero que sepas que mi amor por ti no cambia, no importa lo enojados o heridos que estemos lo que siento por ti sigue siendo real, fuerte y sincero, nunca nuestros problemas han sido más grandes que el amor que tengo por ti, siempre serás la persona por la que me levanto cada día, la razón por la que mis días tienen sentido, perdóname por todo el dolor que te hice sentir de verdad lo siento";
+
+const container = document.getElementById("texto");
+const audio = document.getElementById("audio");
+
+let totalChars = text.length;
+let currentChar = 0;
+
+// iniciar audio
+function iniciarAudio() {
+    audio.volume = 0;
+    audio.play();
+}
+
+document.addEventListener("click", iniciarAudio, { once: true });
+document.addEventListener("mousemove", iniciarAudio, { once: true });
+document.addEventListener("keydown", iniciarAudio, { once: true });
+
+// escribir texto + volumen
+text.split("").forEach((char, i) => {
+    let span = document.createElement("span");
+    span.textContent = char;
+    span.style.animationDelay = (i * 0.04) + "s";
+
+    setTimeout(() => {
+        currentChar++;
+        let progreso = currentChar / totalChars;
+        audio.volume = Math.min(progreso, 1);
+    }, i * 40);
+
+    container.appendChild(span);
+});
+
+// FINAL
+setTimeout(() => {
+    document.getElementById("overlay").style.opacity = 0.9;
+    document.getElementById("carta").style.opacity = 0;
+
+    let final = document.getElementById("finalText");
+    final.style.opacity = 1;
+    final.classList.add("shake");
+
+}, text.length * 40 + 3000);
+
+</script>
+
+</body>
+</html>
